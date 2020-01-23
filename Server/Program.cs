@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Threading.Tasks;
 
 namespace Server
@@ -10,16 +11,20 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            var srv = new ChatServer("127.0.0.1", 4000);
-            srv.Start();
-
-            // Wait until the quit command is executed
-            while (Console.ReadLine() != "quit")
+            Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
             {
-                Task.Delay(100).Wait();
-            }
+                var srv = new ChatServer(options.IPAddress, options.Port);
+                srv.Start();
 
-            srv.Stop();
+                // Wait until the quit command is executed
+                Console.WriteLine("Type quit or press Ctrl^C to stop the server");
+                while (Console.ReadLine() != "quit")
+                {
+                    Task.Delay(100).Wait();
+                }
+
+                srv.Stop();
+            });
         }
     }
 }
