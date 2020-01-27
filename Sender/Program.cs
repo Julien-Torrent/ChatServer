@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommandLine;
+using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,35 +13,34 @@ namespace Sender
     {
         static void Main(string[] args)
         {
-            // Get the username of the user
-            Console.WriteLine("Enter your username:");
-            var usr = Console.ReadLine();
-
-            try
+            Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
             {
-                // Tries to connect to the server
-                var client = new TcpClient();
-                client.Connect(IPAddress.Parse("127.0.0.1"), 4000);
-
-                // Send the username to the server (must be send immediately after the connection)
-                client.GetStream().Write(Encoding.UTF8.GetBytes(usr));
-
-                // Start to read the incoming data from the server
-                Task.Run(() => Read(client));
-
-                // While the client is connected, read what the user want to write
-                while (client.Connected)
+                try
                 {
-                    client.GetStream().Write(Encoding.UTF8.GetBytes(Console.ReadLine()));
-                }
-            }
-            catch(Exception)
-            {
-                // Couldn't connect to the server
-                Console.WriteLine("The server is either full or shutdown");
-            }
+                    // Tries to connect to the server with the given informations
+                    var client = new TcpClient();
+                    client.Connect(IPAddress.Parse(options.IPAddress), options.Port);
 
-            Console.ReadLine();
+                    // Send the username to the server (must be send immediately after the connection)
+                    client.GetStream().Write(Encoding.UTF8.GetBytes(options.Username));
+
+                    // Start to read the incoming data from the server
+                    Task.Run(() => Read(client));
+
+                    // While the client is connected, read what the user want to write
+                    while (client.Connected)
+                    {
+                        client.GetStream().Write(Encoding.UTF8.GetBytes(Console.ReadLine()));
+                    }
+                }
+                catch (Exception)
+                {
+                    // Couldn't connect to the server
+                    Console.WriteLine("The server is either full or shutdown");
+                }
+
+                Console.ReadLine();
+            });
         }
 
         /// <summary>
@@ -52,6 +53,17 @@ namespace Sender
         {
             while (client.Connected)
             {
+                try
+                {
+                    // Method to update the TcpClient.Connected property, try to send empty data
+                    await client.GetStream().WriteAsync(Array.Empty<byte>());
+                }
+                catch (IOException)
+                {
+                    break;
+                }
+
+
                 while (client.GetStream().DataAvailable)
                 {
                     // Read the string from the stream
@@ -70,6 +82,10 @@ namespace Sender
 
                 await Task.Delay(50);
             }
+
+            // When the client has disconnected, dispose the socket and tcpclient
+            client.Client.Close();
+            client.Close();
         }
     }
 }
