@@ -9,5 +9,8 @@ namespace Server
 
         [Option('p', "port", Default = 4000, Required = false, HelpText = "The port the server will listen to")]
         public int Port { get; set; }
+
+        [Option('c', "clients", Default = 10, Required = false, HelpText = "The maximum number of clients simultaneously connected")]
+        public int MaxClients { get; set; }
     }
 }

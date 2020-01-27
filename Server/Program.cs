@@ -13,7 +13,7 @@ namespace Server
         {
             Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
             {
-                var srv = new ChatServer(options.IPAddress, options.Port);
+                var srv = new ChatServer(options.IPAddress, options.Port, options.MaxClients);
                 srv.Start();
 
                 // Wait until the quit command is executed

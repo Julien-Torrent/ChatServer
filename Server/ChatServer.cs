@@ -13,7 +13,7 @@ namespace Server
         /// <summary>
         /// Maximum number of concurrent connections on the server
         /// </summary>
-        private static readonly int _maxClients = 10;
+        private readonly int _maxClients;
 
         /// <summary>
         /// The TcpListener to accept the incoming connections when the server is not full
@@ -51,8 +51,9 @@ namespace Server
         /// </summary>
         /// <param name="ip">IP Address to listen to</param>
         /// <param name="port">Port to listen to</param>
-        public ChatServer(string ip, int port)
+        public ChatServer(string ip, int port, int maxClients)
         {
+            _maxClients = maxClients;
             _listener = new TcpListener(new IPEndPoint(IPAddress.Parse(ip), port));
 
             _listenTask = new Task(Listen);

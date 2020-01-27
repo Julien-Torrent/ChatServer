@@ -112,7 +112,7 @@ namespace Server
                 try
                 {
                     // Method to update the TcpClient.Connected property, try to send empty data
-                    await _client.GetStream().WriteAsync(new byte[0]);
+                    await _client.GetStream().WriteAsync(Array.Empty<byte>());
                 }
                 catch (IOException)
                 {
