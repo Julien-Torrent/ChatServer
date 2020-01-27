@@ -59,7 +59,7 @@ namespace Server
 
             // Start the Read in a new Task
             Task.Run(() => Read());
-        }   
+        }
 
         /// <summary>
         /// Try to write the message the client, if it fails triggers the OnClientDisconnected

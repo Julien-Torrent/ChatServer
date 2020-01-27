@@ -12,6 +12,5 @@ namespace Sender
 
         [Option('u', "username", Required = true, HelpText = "The name this client will have in the server")]
         public string Username { get; set; }
-
     }
 }

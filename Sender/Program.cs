@@ -63,7 +63,6 @@ namespace Sender
                     break;
                 }
 
-
                 while (client.GetStream().DataAvailable)
                 {
                     // Read the string from the stream
