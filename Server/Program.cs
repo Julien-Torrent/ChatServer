@@ -22,8 +22,8 @@ namespace Server
                 // Ctrl + C or Ctrl + Break
                 Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) => srv.Stop());
 
-
                 // Wait until the quit command is executed
+                Console.WriteLine($"Server is now listening on {options.IPAddress}:{options.Port}");
                 Console.WriteLine("Type 'quit' or press Ctrl^C to stop the server");
                 while (Console.ReadLine() != "quit")
                 {
