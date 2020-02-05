@@ -9,11 +9,14 @@ namespace Server
     /// </summary>
     class Program
     {
+        private const int _port = 4000;
+        private const string _address = "0.0.0.0";
+
         static void Main(string[] args)
         {
             Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
             {
-                var srv = new ChatServer(options.IPAddress, options.Port, options.MaxClients);
+                var srv = new ChatServer(_address, _port, options.MaxClients);
                 srv.Start();
 
                 // Windows closed
@@ -23,7 +26,7 @@ namespace Server
                 Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) => srv.Stop());
 
                 // Wait until the quit command is executed
-                Console.WriteLine($"Server is now listening on {options.IPAddress}:{options.Port}");
+                Console.WriteLine($"Server is now listening on {_address}:{_port}");
                 Console.WriteLine("Type 'quit' or press Ctrl^C to stop the server");
                 while (Console.ReadLine() != "quit")
                 {
