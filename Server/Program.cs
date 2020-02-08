@@ -9,7 +9,14 @@ namespace Server
     /// </summary>
     class Program
     {
+        /// <summary>
+        /// We listen to the port 4000 of the container, the user will bind the desired port ( xxxx:4000 )
+        /// </summary>
         private const int _port = 4000;
+        
+        /// <summary>
+        /// The address the container is listening to. We listen to all the adresses of the container.
+        /// </summary>
         private const string _address = "0.0.0.0";
 
         static void Main(string[] args)
