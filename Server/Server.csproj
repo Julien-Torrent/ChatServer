@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
   </ItemGroup>
 
 </Project>
