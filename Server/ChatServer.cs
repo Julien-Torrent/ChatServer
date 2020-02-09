@@ -124,8 +124,13 @@ namespace Server
         /// </summary>
         private void DistpatchMessages()
         {
+<<<<<<< HEAD
             // Send each message in the queue to the connected clients except to the sender of the message
             foreach (var msg in _tosend.GetConsumingEnumerable(_cancellationToken.Token))
+=======
+            // As long as there are messages we dispatch them
+            while (!_tosend.IsEmpty)
+>>>>>>> Docker
             {
                 lock (_lock)
                 {
