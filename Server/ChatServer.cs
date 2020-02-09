@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Server
@@ -28,7 +29,12 @@ namespace Server
         /// <summary>
         /// List of the messages the server needs to dispatch to the connected clients
         /// </summary>
-        private readonly ConcurrentQueue<Tuple<string,string>> _tosend = new ConcurrentQueue<Tuple<string, string>>();
+        private readonly BlockingCollection<Tuple<string, string>> _tosend = new BlockingCollection<Tuple<string, string>>();
+
+        /// <summary>
+        /// The CancellationTokenSource used when the server stop is requested 
+        /// </summary>
+        private readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
 
         /// <summary>
         /// Lock used to block the access to the clients list
@@ -36,15 +42,14 @@ namespace Server
         private readonly object _lock = new object();
 
         /// <summary>
-        /// The Task that listens to the incoming connections and accept them if the room
-        /// is not full
+        /// The Task that listens to the incoming connections and accept them if the room is not full
         /// </summary>
         private Task _listenTask;
  
         /// <summary>
-        /// The Task being used to dispatch the waiting messages to the connected clientss
+        /// The Task being used to dispatch the waiting messages to the connected clients
         /// </summary>
-        private Task _dispatchTask;
+        private readonly Task _dispatchTask;
 
         /// <summary>
         /// Create a new Chat server on the desired IP address and port
@@ -84,6 +89,9 @@ namespace Server
                     c.Close();
                 }
             }
+
+            // Cancel the tasks
+            _cancellationToken.Cancel();
         }
 
         /// <summary>
@@ -116,12 +124,9 @@ namespace Server
         /// </summary>
         private void DistpatchMessages()
         {
-            // As long as there are messages we dispatch them
-            while (!_tosend.IsEmpty)
+            // Send each message in the queue to the connected clients except to the sender of the message
+            foreach (var msg in _tosend.GetConsumingEnumerable(_cancellationToken.Token))
             {
-                // Get the first message of the list and send it to all clients
-                _tosend.TryDequeue(out Tuple<string,string> msg);
-
                 lock (_lock)
                 {
                     foreach (var c in _clients.Where(x => x.UserName != msg.Item1))
@@ -142,14 +147,8 @@ namespace Server
             // Log on the server
             Console.WriteLine($"[{user}] {msg}");
 
-            // Add the message to the message queue and if the server is not dispatching 
-            // make it dispatch again
-            _tosend.Enqueue(new Tuple<string, string>(user,msg));
-            if (_dispatchTask.IsCompleted)
-            {
-                _dispatchTask = new Task(DistpatchMessages);
-                _dispatchTask.Start();
-            }
+            // Add the message to the message queue
+            _tosend.Add(new Tuple<string, string>(user,msg));
         }
 
         /// <summary>
