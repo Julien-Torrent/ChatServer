@@ -117,7 +117,7 @@ namespace Server
         private void DistpatchMessages()
         {
             // As long as there are messages we dispatch them
-            while (_tosend.Count > 0)
+            while (!_tosend.IsEmpty)
             {
                 // Get the first message of the list and send it to all clients
                 _tosend.TryDequeue(out Tuple<string,string> msg);
