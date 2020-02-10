@@ -62,7 +62,7 @@ namespace Server
             _listener = new TcpListener(new IPEndPoint(IPAddress.Parse(ip), port));
 
             _listenTask = new Task(Listen);
-            _dispatchTask = new Task(DistpatchMessages);
+            _dispatchTask = new Task(DispatchMessages);
         }
 
         /// <summary>
@@ -90,8 +90,10 @@ namespace Server
                 }
             }
 
-            // Cancel the tasks
+            // Cancel the tasks and stops the TcpListener
+            _listener.Stop();
             _cancellationToken.Cancel();
+            _dispatchTask.ContinueWith(t => Console.WriteLine("Dispatching of message is stopped")).Wait();
         }
 
         /// <summary>
@@ -122,7 +124,7 @@ namespace Server
         /// <summary>
         /// Dispatch the messages in the queue to the connected clients
         /// </summary>
-        private void DistpatchMessages()
+        private void DispatchMessages()
         {
             // Send each message in the queue to the connected clients except to the sender of the message
             foreach (var msg in _tosend.GetConsumingEnumerable(_cancellationToken.Token))
@@ -144,10 +146,9 @@ namespace Server
         /// <param name="msg">Message the server has recieved</param>
         private void Recieve(string user, string msg)
         {
-            // Log on the server
+            // Log on the server and add the message to the message queue
             Console.WriteLine($"[{user}] {msg}");
 
-            // Add the message to the message queue
             _tosend.Add(new Tuple<string, string>(user,msg));
         }
 

@@ -16,7 +16,7 @@ namespace Server
                 var srv = new ChatServer(options.IPAddress, options.Port, options.MaxClients);
                 srv.Start();
 
-                // Windows closed
+                // Windows closed or user types quit
                 AppDomain.CurrentDomain.ProcessExit += (sender, args) => srv.Stop();
 
                 // Ctrl + C or Ctrl + Break
@@ -24,14 +24,12 @@ namespace Server
 
                 // Wait until the quit command is executed
                 Console.WriteLine($"Server is now listening on {options.IPAddress}:{options.Port}");
+
                 Console.WriteLine("Type 'quit' or press Ctrl^C to stop the server");
                 while (Console.ReadLine() != "quit")
                 {
                     Task.Delay(100).Wait();
                 }
-
-                // User types quit
-                srv.Stop();
             });
         }
     }
