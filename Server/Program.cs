@@ -26,7 +26,7 @@ namespace Server
                 var srv = new ChatServer(_address, _port, options.MaxClients);
                 srv.Start();
 
-                // Windows closed
+                // Windows closed or user types quit
                 AppDomain.CurrentDomain.ProcessExit += (sender, args) => srv.Stop();
 
                 // Ctrl + C or Ctrl + Break
@@ -39,9 +39,6 @@ namespace Server
                 {
                     Task.Delay(100).Wait();
                 }
-
-                // User types quit
-                srv.Stop();
             });
         }
     }
