@@ -100,7 +100,7 @@ namespace Server
         /// Method to accept the incoming connections and create a new ChatClient 
         /// and add it to the list of the conncted clients
         /// </summary>
-        private void Listen()
+        private async void Listen()
         {
             _listener.Start();
 
@@ -108,7 +108,7 @@ namespace Server
             while (_clients.Count < _maxClients)
             {
                 // Accept the connection
-                var client = _listener.AcceptTcpClient();
+                var client = await _listener.AcceptTcpClientAsync();
 
                 lock (_lock)
                 {
